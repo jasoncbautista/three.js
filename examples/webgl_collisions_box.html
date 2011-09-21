@@ -57,7 +57,7 @@ function init() {
 	info = document.getElementById("info");
 
 	camera = new THREE.Camera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
-	camera.position.z = -500;
+	camera.position.z = -1500;
 
 	scene = new THREE.Scene();
 
@@ -105,6 +105,8 @@ function onDocumentMouseMove( event ) {
 	event.preventDefault();
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  mouse.x2 = event.pageX;
+  mouse.y2 = event.pageY;
 
 };
 
@@ -138,6 +140,9 @@ function animate() {
 	cube.rotation.y += 0.02;
 	cube.position.x = Math.sin(bounce) * 100;
 	bounce += 0.01;
+
+  cube.position.x = -1*( mouse.x2 -500)
+  cube.position.y = -1* (mouse.y2-300);
 
 	renderer.render( scene, camera );
 
