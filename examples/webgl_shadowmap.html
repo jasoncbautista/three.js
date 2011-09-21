@@ -25,10 +25,6 @@
 
 	<body>
 
-		<div id="info">
-		<a href="http://github.com/mrdoob/three.js" target="_blank">three.js</a> - shadowmap - models by <a href="http://mirada.com/">mirada</a> from <a href="http://ro.me">rome</a></br>
-		move camera with WASD / RF + mouse
-		</div>
 
 		<script type="text/javascript" src="../build/Three.js"></script>
 
@@ -87,18 +83,18 @@
 
         projector = new THREE.Projector();
 				// SCENE CAMERA
-/*
 				camera = new THREE.FirstPersonCamera( { fov: 23, aspect: SCREEN_WIDTH / SCREEN_HEIGHT, near: NEAR, far: FAR,
 														lookSpeed: 0.0, movementSpeed: 0, noFly: true, lookVertical: true,
 														constrainVertical: true, verticalMin: 1.5, verticalMax: 2.0
 														} );
 
-				camera.position.set( 700, 150, 1900 );
+				camera.position.set( 700, 250, 1900 );
 				camera.lon = -110;
-*/
+/*
       camera = new THREE.Camera( 40, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
       camera.position.z = 1500;
 
+*/
 
 
 				// SCENE
@@ -174,6 +170,44 @@
 
 			}
 
+
+      function add_text(num){
+        var textGeo = new THREE.TextGeometry( num, {
+
+              size: 100,
+              height: 50,
+              curveSegments: 12,
+
+              font: "helvetiker",
+              weight: "bold",
+              style: "normal",
+
+              bevelThickness: 2,
+              bevelSize: 5,
+              bevelEnabled: true
+
+            });
+
+            textGeo.computeBoundingBox();
+            var centerOffset = -0.5 * ( textGeo.boundingBox.x[ 1 ] - textGeo.boundingBox.x[ 0 ] );
+
+            var textMaterial = new THREE.MeshPhongMaterial( { color: 0xff0000, specular: 0xffffff, ambient: 0xaa0000 } );
+
+            var mesh = new THREE.Mesh( textGeo, textMaterial );
+            mesh.position.x = centerOffset;
+            mesh.position.y = FLOOR + 67;
+
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            scene.addObject( mesh );
+            return mesh;
+
+
+      }
+
+      
+
 			function createScene( ) {
 
 				// GROUND
@@ -195,7 +229,7 @@
 
 				// TEXT
 
-				var textGeo = new THREE.TextGeometry( "> 9", {
+				var textGeo = new THREE.TextGeometry( "> 3", {
 
 					size: 200,
 					height: 50,
@@ -271,9 +305,9 @@
 
 					morphs.push( { mesh: meshAnim, lastKeyframe: 0, currentKeyframe: 0,
 								   offset: Math.random() * 6, speed: speed, duration: duration,
-								   oldTime: new Date().getTime() } );
-
+								   oldTime: new Date().getTime(), txt: add_text(Math.floor(Math.random()*11)) } );
 				}
+        
 
 				function morphColorsToFaceColors( geometry ) {
 
@@ -307,57 +341,6 @@
 
 				} } );
 
-				/*
-				loader.load( { model: "obj/morphs/fox.js", callback: function( geometry ) {
-
-					morphColorsToFaceColors( geometry );
-					addMorph( geometry, 0.2, 1000, 100 - Math.random() * 500, FLOOR - 5, 600 );
-
-				} } );
-
-				loader.load( { model: "obj/morphs/shdw3walk.js", callback: function( geometry ) {
-
-					morphColorsToFaceColors( geometry );
-					addMorph( geometry, 0.04, 2000, -500, FLOOR + 60, 245 );
-
-				} } );
-
-				loader.load( { model: "obj/morphs/flamingo.js", callback: function( geometry ) {
-
-					morphColorsToFaceColors( geometry );
-					addMorph( geometry, 0.5, 1000, 500 - Math.random() * 500, FLOOR + 350, 40 );
-
-				} } );
-
-				loader.load( { model: "obj/morphs/stork.js", callback: function( geometry ) {
-
-					morphColorsToFaceColors( geometry );
-					addMorph( geometry, 0.35, 1000, 500 - Math.random() * 500, FLOOR + 350, 340 );
-
-				} } );
-
-				loader.load( { model: "obj/morphs/mountainlion.js", callback: function( geometry ) {
-
-					morphColorsToFaceColors( geometry );
-					addMorph( geometry, 0.4, 1000, 500 - Math.random() * 500, FLOOR - 5, 700 );
-
-				} } );
-
-				loader.load( { model: "obj/morphs/bearBrown.js", callback: function( geometry ) {
-
-					morphColorsToFaceColors( geometry );
-					addMorph( geometry, 0.3, 2500, -500, FLOOR - 5, -750 );
-
-				} } );
-
-				loader.load( { model: "obj/morphs/parrot.js", callback: function( geometry ) {
-
-					morphColorsToFaceColors( geometry );
-					addMorph( geometry, 0.45, 500, 500 - Math.random() * 500, FLOOR + 300, 700 );
-
-				} } );
-
-				*/
 
 			}
 
@@ -394,13 +377,16 @@
 				delta = newTime - morph.oldTime;
 				morph.oldTime = newTime;
 
-				mesh.position.x += morph.speed * delta;
+				mesh.position.x += morph.speed*0.9 * delta;
 
 				if ( mesh.position.x  > 2000 )  {
 
 					mesh.position.x = -1000 - Math.random() * 500;
 
 				}
+        morph.txt.position.x = mesh.position.x-20;
+        morph.txt.position.z = mesh.position.z;
+        morph.txt.position.y = mesh.position.y+190;
 
 			}
 
@@ -440,7 +426,6 @@
           //info.innerHTML += "No intersection";
 
         }
-
 
 
 				render();
