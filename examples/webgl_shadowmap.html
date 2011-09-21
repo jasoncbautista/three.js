@@ -46,13 +46,17 @@
 
 			var SHADOW_MAP_WIDTH = 1024, SHADOW_MAP_HEIGHT = 1024;
 
+      var  mouse = { x: 0, y: 0 };
+
+      var meshes = [];
+
 			var MARGIN = 100;
 
 			var SCREEN_WIDTH = window.innerWidth;
 			var SCREEN_HEIGHT = window.innerHeight - 2 * MARGIN;
 			var FLOOR = -250;
 
-			var camera, scene, renderer;
+			var camera, scene, renderer, projector;
 			var container, stats;
 
 			var NEAR = 5, FAR = 3000;
@@ -66,21 +70,36 @@
 			init();
 			animate();
 
+      function onDocumentMouseMove( event ) {
+
+        event.preventDefault();	
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+      };
+
 
 			function init() {
 
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
+        container.onmousemove = onDocumentMouseMove;
 
+        projector = new THREE.Projector();
 				// SCENE CAMERA
-
+/*
 				camera = new THREE.FirstPersonCamera( { fov: 23, aspect: SCREEN_WIDTH / SCREEN_HEIGHT, near: NEAR, far: FAR,
-														lookSpeed: 0.0125, movementSpeed: 500, noFly: false, lookVertical: true,
+														lookSpeed: 0.0, movementSpeed: 0, noFly: true, lookVertical: true,
 														constrainVertical: true, verticalMin: 1.5, verticalMax: 2.0
 														} );
 
-				camera.position.set( 700, 50, 1900 );
+				camera.position.set( 700, 150, 1900 );
 				camera.lon = -110;
+*/
+      camera = new THREE.Camera( 40, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
+      camera.position.z = 1500;
+
+
 
 				// SCENE
 
@@ -237,6 +256,10 @@
 					if ( fudgeColor ) THREE.ColorUtils.adjustHSV( material.color, 0, 0.5 - Math.random(), 0.5 - Math.random() );
 
 					var meshAnim = new THREE.Mesh( geometry, material );
+          meshes.push(meshAnim);
+          var mc = THREE.CollisionUtils.MeshColliderWBox(meshAnim);
+          THREE.Collisions.colliders.push( mc );
+
 
 					meshAnim.position.set( x, y, z );
 					meshAnim.rotation.y = 1.57;
@@ -385,7 +408,40 @@
 
 			function animate() {
 
+        
+
 				requestAnimationFrame( animate );
+
+        if( meshes.length == 0 ) return;
+
+        var i, l = meshes.length;
+        //reset 
+        for ( i = 0; i < l; i++ ) {
+
+          meshes[ i ].materials[ 0 ].color.setHex( 0x003300 );
+
+        }
+
+
+        var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
+        projector.unprojectVector( vector, camera );
+
+        var ray = new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
+
+        var c = THREE.Collisions.rayCastNearest( ray );
+        
+        
+        if( c ) {
+          //info.innerHTML += "Found @ distance " + c.distance;
+          c.mesh.materials[ 0 ].color.setHex( 0xbb0000 );
+
+        } else {
+        
+          //info.innerHTML += "No intersection";
+
+        }
+
+
 
 				render();
 				stats.update();
